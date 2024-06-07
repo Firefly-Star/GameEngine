@@ -1,0 +1,132 @@
+# **FireFly游戏引擎**
+## **项目列表**
+### **自己编写的项目**
+1. FireFly：C++
+2. Sandbox：C++
+### **外界引入的项目**
+#### 库
+1. GLFW：用来创建窗口，上下文和处理输入输出
+2. Glad：Windows系统下的OpenGL函数接口
+3. ImGui：GUI模块
+#### 头文件库
+1. glm：opengl的数学库，提供simd高效的矩阵变换
+2. spdlog：日志库
+## 头文件列表
+### FireFly引擎核心
+#### 通用
+1. FireFly.h：客户端专用
+2. ffpch.h：预编译头，FireFLy中的每个cpp文件都需要包含
+#### Core：核心文件
+   1. EntryPoint.h：引擎的入口，main函数在其中
+   2. Application.h：应用的定义，定义窗口的创建，是所有层级系统的支架
+   3. Core.h：核心头文件，其中定义了各类宏
+   4. Input.h：轮询系统
+   5. Log.h：日志系统，主要用于调试
+   6. KeyCode.h：用于将外来项目（GLFW等）中的键码转换为引擎特有的统一键码
+   7. MouseButtonCode.h：将外来项目（GLFW等）中的键码转换为引擎特有的统一键码
+   8. Layer.h：层级系统的虚基类，定义各类层级的基础
+   9. LayerStack.h：层栈系统，用于确立各层级的先后顺序
+   10. Window.h：窗口头文件  
+##### Events：事件系统
+1. Event.h：所有事件的虚基类
+2. KeyEvent.h：键盘事件
+3. MouseEvent.h：鼠标事件
+4. WindowEvent.h：窗口事件
+5. Application.h：应用事件
+##### ImGui：GUI系统
+1. ImGuiLayer.h：GUI层，应该在所有层级的最上层，或者是最下层？暂定在最上层  
+##### Renderer：渲染器系统
+1. Renderer.h：所有渲染器的顶层，从高到低分为Renderer，RendererCommand，RendererAPI三层
+2. Buffer.h：图元缓冲区的抽象
+3. VertexArray.h：顶点数组的抽象
+4. Shader.h：着色器抽象
+5. Camera.h：相机抽象，目前只实现了正交相机，很近的未来内会往里面添加透视相机
+6. GraphicContext.h：上下文抽象，不同于上述接口与Renderer相关，GraphicContext是与Window相关的，负责上下文实现
+#### Platform：为不同操作系统的实现
+##### Window
+1. WindowsWindow.h：Window类在Windows操作系统中的实现
+2. WindowsInput.h：Input类在Windows操作系统中的实现
+##### OpenGL
+1. OpenGLRendererAPI：RendererAPI在OpenGL中的接口
+2. OpenGLErrorAPI：OpenGL的纠错模块，如果渲染失败了，我需要知道错误出在哪
+3. OpenGLVertexArray.h：VertexArray类的OpenGL实现
+4. OpenGLBuffer.h：Buffer类的OpenGL实现
+5. OpenGLShader.h：Shader类的OpenGL实现
+6. OpgnGLContext.h：不同于上述接口与Renderer相关，OpenGLContext是与Window相关的，负责OpenGL下的上下文实现
+#### OS：操作系统抽象
+1. OSAPI.h：为不同操作系统提供不同的实现，目前只是个Demo，暂时由一个枚举类实现，未来可能会换成宏实现来减少编译时间和大小
+#### vendor：仅有头文件的外来库
+1. spdlog：日志系统的基础
+## 类
+* Application  
+  > 应用程序类，为一个单例类，在一个Sandbox程序中仅能生成一个Application实例，通过在Sandbox（应用程序）中定义的Create（）函数进行初始化，例如往层栈系统里加入不同层等等，通过run函数进行渲染和完成事件的回馈
+* Input  
+  > 轮询系统，为各层级的事件轮询提供接口
+  1. WindowsInput 
+  > Windows系统下的轮询系统的实现
+* Layer  
+  > 层级系统，是Sandbox和FireFly核心交互的核心接口
+  1. ImGuiLayer
+  > 一个特殊的层级，（暂时）只对FireFly核心开放，作为FireFly的GUI层
+* LayerStack
+  > 层栈系统，为对各层级的整合，在Application中按顺序进行轮询和阻塞式等待事件
+* Log
+  > 日志类，为一个静态类，（暂时）只做debug使用，我需要知道引擎内部在干什么
+* Window  
+  > 窗口类，不是单例类，但是目前整个程序中只会出现一个窗口，是所有渲染，事件，回调的背景窗口
+  1. WindowsWindow
+  > Windows系统下窗口类的实现
+* Event  
+  > 阻塞式等待事件系统，目前不是很常用，未来可能往里面添加接口
+  1. MouseEvent
+  > 鼠标事件，包含鼠标的点击，滚轮，移动 
+  1. KeyEvent
+  > 键盘事件，包含键盘的点按，长按，释放
+  1. ApplicationEvent
+  > 应用程序事件，目前还只是空壳，包含刻，更新，渲染
+  1. WindowEvent
+  > 窗口事件，包含Resize，移动，关闭，Focus,LostFocus事件，目前不常用，但是马上就会常用了
+* EventDispatcher
+  > 阻塞式等待事件系统的调度器，将事件分类并分配给不同的函数来调度
+* OSAPI
+  > 一个小的枚举类的包装，区分操作系统。未来可能被宏替代
+* Renderer
+  > 渲染器顶层，储存环境参数例如光照，相机等等，分发RendererCommand指令
+* RendererCommand
+  > Renderer和RendererAPI之间的中间层，接收Renderer指令，将其分解成小的RendererAPI命令
+* RendererAPI
+  > 渲染器和图形API之间的交互接口，执行RendererCommand分发的命令
+  1. OpenGLRendererAPI
+* BufferLayout
+  > 顶点缓冲区布局抽象
+  1. OpenGLBufferLayout
+* VertexBuffer
+  > 顶点缓冲区抽象
+  1. OpenGLVertexBuffer
+* IndexBuffer
+  > 索引缓冲区抽象
+  1. OpenGLIndexBuffer
+* Shader
+  > 着色器程序抽象
+  1. OpenGLShader
+* VertexArray
+  > 顶点数组抽象，将上述图元的引用打包存储，统一渲染
+  1. OpenGLVertexArray
+* GraphicContext
+  > 上下文抽象，是创建窗口和进行渲染的基础
+  1.OpenGLContext
+* OrthoCamera
+  > 正交相机抽象 
+## 调用顺序
+1. Sandbox.cpp中包含了FireFly.h，同时也包含了EntryPoint.h，此时会运行EntryPoint.h中的main函数
+2. main函数中调用Log::Init()初始化Log类
+3. main函数中调用FireFly::CreateApplication()，该函数的定义在Application.h中，实现在Sandbox.h中
+4. main函数首先初始化了Log类
+5. 然后，FireFly::CreateApplication()中调用Application::GetInstance()，该函数为静态函数，返回一个Application类的单例
+6. Application::GetInstance()调用了Application类的构造函数
+7. Application类的构造函数中调用Window类的静态函数Create，返回了一个指向WindowsWindow类的Window指针，并将Application::OnEvent(Event e)函数作为这个WindowsWindow类的回调函数
+8. 接7，此时所有事件都会由这个WindowsWindow类来产生，并在产生后通过GLFW的回调函数自动调用Application::OnEvent(Event e)，而Application::OnEvent(Event e)又会对Application中层栈中的所有层，通过Eventdispatcher类中的Dispatch来进行事件的分类和调度。也就是说，实现了一个以WindowsWindow为核心的类阻塞式等待事件系统。
+9. 接8，Application的构造函数中接着调用了Input::Create()函数，并将7中申请出来的WindowsWindow的句柄作为轮询系统的句柄，即轮询系统接下来将主动询问该WindowsWindow的动作并在各Layer的OnUpdate中，每一帧进行询问并进行反馈
+10. 然后，Application的构造函数又调用了ImGuiLayer的构造函数，生成了一个ImGuiLayer作为引擎的GUI界面，Application的构造函数结束。
+11. 回到EntryPoint，此时main函数调用Application类的run函数，对LayerStack中的每一个Layer调用OnUpdate()函数，最后渲染ImGui层。
+12. main函数调用ReleaseInstance，释放资源，程序结束
