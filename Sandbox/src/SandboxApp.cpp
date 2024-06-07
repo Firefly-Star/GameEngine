@@ -25,7 +25,7 @@ public:
 		:Layer(){}
 	virtual void OnAttach() override
 	{
-		m_Shader = FireFly::Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly-main/Sandbox/assets/Shaders/BasicShader.glsl");
+		m_Shader = FireFly::Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Shaders/BasicShader.glsl");
 		m_Shader->Bind();
 		unsigned int indices[] = {
 			0, 1, 2,
@@ -81,7 +81,7 @@ public:
 		m_VB = FireFly::VertexBuffer::Create(vertices, sizeof(vertices));
 		m_IB->Bind();
 		m_VB->Bind();
-		m_Texture = FireFly::Texture2D::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly-main/Sandbox/assets/Texture/Robin.jpg");
+		m_Texture = FireFly::Texture2D::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Texture/Robin.jpg");
 		m_PureWhiteTexture = FireFly::Texture2D::Create();
 		unsigned char PWT[] = { 255, 255, 255 };
 		m_PureWhiteTexture->SetTexture(PWT, 1, 1);

@@ -95,29 +95,30 @@ namespace FireFly
 	void PerspectiveCameraController::OnUpdate(Ref<Input> input)
 	{
 		float deltatime = TimeStep::GetDeltaTime();
+		glm::vec3 right = glm::cross(m_Orientation, m_Up);
 		if (input->IsKeyPressed(FF_KEY_W))
 		{
-			m_Position.z -= m_PanSpeed * deltatime;
+			m_Position += m_Orientation * m_PanSpeed * deltatime;
 		}
 		else if (input->IsKeyPressed(FF_KEY_S))
 		{
-			m_Position.z += m_PanSpeed * deltatime;
+			m_Position -= m_Orientation * m_PanSpeed * deltatime;
 		}
 		if (input->IsKeyPressed(FF_KEY_A))
 		{
-			m_Position.x -= m_PanSpeed * deltatime;
+			m_Position -= right * m_PanSpeed * deltatime;
 		}
 		else if (input->IsKeyPressed(FF_KEY_D))
 		{
-			m_Position.x += m_PanSpeed * deltatime;
+			m_Position += right * m_PanSpeed * deltatime;
 		}
 		if (input->IsKeyPressed(FF_KEY_SPACE))
 		{
-			m_Position.y += m_PanSpeed * deltatime;
+			m_Position += m_Up * deltatime;
 		}
 		else if (input->IsKeyPressed(FF_KEY_LEFT_SHIFT))
 		{
-			m_Position.y -= m_PanSpeed * deltatime;
+			m_Position -= m_Up * deltatime;
 		}
 
 		m_Camera.SetPosition(m_Position);
@@ -153,21 +154,27 @@ namespace FireFly
 				m_MousePosY = mouseY;
 				if (deltaX > 0)
 				{
+					m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), m_Up) * glm::vec4(m_Orientation, 1.0f));
 				}
 				else if (deltaX < 0)
 				{
+					m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(+m_RotationSpeed * deltatime), m_Up) * glm::vec4(m_Orientation, 1.0f));
 				}
 				if (m_IsEnableVRotation)
 				{
+					glm::vec right = glm::cross(m_Orientation, m_Up);
 					if (deltaY > 0)
 					{
+						m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), right) * glm::vec4(m_Orientation, 1.0f));
+						m_Up = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), right) * glm::vec4(m_Up, 1.0f));
 					}
 					else if (deltaY < 0)
 					{
+						m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationSpeed * deltatime), right) * glm::vec4(m_Orientation, 1.0f));
+						m_Up = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationSpeed * deltatime), right) * glm::vec4(m_Up, 1.0f));
 					}
 				}
 			}
-
 			m_Camera.SetOrientation(m_Orientation);
 			m_Camera.SetUp(m_Up);
 		}

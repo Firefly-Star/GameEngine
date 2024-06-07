@@ -21,7 +21,7 @@ namespace FireFly
 	Application::Application()
 	{
 		WindowProp prop(1600, 960);
-		ViewPort::SetRatio(16.0f / 9.0f);
+		ViewPort::SetRatio(1.0f);
 		m_Window.reset(Window::Create(prop));
 		m_Window->SetEventCallback(FF_BIND_EVENT_FN(Application::OnEvent));
 		void* window_ptr = m_Window->GetWindowHandle();
