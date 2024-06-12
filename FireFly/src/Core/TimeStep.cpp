@@ -24,6 +24,6 @@ namespace FireFly
 	}
 	float TimeStep::GetTime()
 	{
-		return s_Instance->GetDeltaTimeImpl();
+		return s_Instance->GetTimeImpl();
 	}
 }

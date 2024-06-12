@@ -14,7 +14,8 @@ workspace "FireFly"
 	IncludeDir["Glad"] = "FireFly/vendor/Glad/include"
 	IncludeDir["ImGui"] = "FireFly/vendor/ImGui"
 	IncludeDir["GLM"] = "FireFly/vendor/GLM/glm-master"
-	IncludeDir["stb"] = "FireFly/vendor"
+	IncludeDir["stb"] = "FireFly/vendor/stb_image"
+	IncludeDir["assimp"] = "FireFly/vendor/assimp/include"
 
 	include "FireFly/vendor/GLFW/src/glfw-3.4"
 	include "FireFly/vendor/Glad"
@@ -43,7 +44,9 @@ workspace "FireFly"
 			"%{prj.name}/vendor/GLM/glm-master/glm/**.hpp",
 			"%{prj.name}/vendor/GLM/glm-master/glm/**.inl",
 			"%{prj.name}/vendor/stb_image/*.cpp",
-			"%{prj.name}/vendor/stb_image/*.h"
+			"%{prj.name}/vendor/stb_image/*.h",
+			"%{prj.name}/vendor/assimp/include/assimp/**.h",
+			"%{prj.name}/vendor/assimp/include/assimp/**.hpp"
 		}
 
 		includedirs
@@ -55,7 +58,8 @@ workspace "FireFly"
 			"%{IncludeDir.ImGui}",
 			"%{IncludeDir.ImGui}/backends",
 			"%{IncludeDir.GLM}",
-			"%{IncludeDir.stb}"
+			"%{IncludeDir.stb}",
+			"%{IncludeDir.assimp}"
 		}
 
 		links
@@ -120,12 +124,13 @@ workspace "FireFly"
 			"FireFly/src",
 			"%{IncludeDir.GLM}",
 			"%{IncludeDir.ImGui}",
-			"%{IncludeDir.ImGui}/backends"
+			"%{IncludeDir.ImGui}/backends",
+			"%{IncludeDir.assimp}"
 		}
 
 		links
 		{
-			"FireFly"
+			"FireFly",
 		}
 
 		filter "system:windows"
@@ -140,10 +145,18 @@ workspace "FireFly"
 			defines "FF_DEBUG"
 			symbols "On"
 			runtime "Debug"
+			links
+			{
+				"FireFly/vendor/assimp/bin/Debug/assimp-vc143-mtd.lib"
+			}
 
 		filter "configurations:Release"
 			optimize "On"
 			runtime "Release"
+			links
+			{
+				"FireFly/vendor/assimp/bin/Release/assimp-vc143-mt.lib"
+			}
 
 		filter "configurations:Debug"
 			optimize "Full"

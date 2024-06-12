@@ -9,7 +9,7 @@
 #include "Core/Events/MouseEvent.h"
 
 #include <glad/glad.h>
-#include <ImGui/imgui.h>
+#include <imgui.h>
 
 namespace FireFly
 {

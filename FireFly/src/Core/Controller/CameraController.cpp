@@ -81,7 +81,7 @@ namespace FireFly
 	//---------------PerspectiveCemeraController----------------
 	PerspectiveCameraController::PerspectiveCameraController()
 		:m_Camera(), m_PanSpeed(1.0f), m_RotationSpeed(1.0f), m_MousePosX(-1.0f), m_MousePosY(-1.0f), m_IsMouseHidden(false), 
-		m_Orientation({0.0f, 0.0f, -1.0f}), m_Up({0.0f, 1.0f, 0.0f}), m_Position({0.0f, 0.0f, 0.0f}), m_IsEnableVRotation(false)
+		m_Orientation({0.0f, 0.0f, -1.0f}), m_Up({0.0f, 1.0f, 0.0f}), m_Position({0.0f, 0.0f, 0.0f}), m_IsEnableVRotation()
 	{
 	}
 

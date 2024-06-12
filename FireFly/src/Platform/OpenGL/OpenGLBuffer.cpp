@@ -54,6 +54,14 @@ namespace FireFly
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 	}
 
+	OpenGLVertexBuffer::OpenGLVertexBuffer()
+		:m_RendererID(0)
+	{
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+	}
+
+
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
 		glDeleteBuffers(1, &m_RendererID);
@@ -69,6 +77,12 @@ namespace FireFly
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
+	void OpenGLVertexBuffer::SetData(void* buffer, unsigned int size)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW);
+	}
+
 	//----------IndexBuffer----------
 	OpenGLIndexBuffer::OpenGLIndexBuffer(unsigned int* indices, unsigned int size)
 		:m_RendererID(0), m_Count(size / sizeof(unsigned int))
@@ -77,6 +91,13 @@ namespace FireFly
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices, GL_STATIC_DRAW);
+	}
+
+	OpenGLIndexBuffer::OpenGLIndexBuffer()
+		:m_RendererID(0), m_Count(0)
+	{
+		glGenBuffers(1, &m_RendererID);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
@@ -94,6 +115,11 @@ namespace FireFly
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-
+	void OpenGLIndexBuffer::SetData(void* buffer, unsigned int size)
+	{
+		m_Count = size / sizeof(unsigned int);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW);
+	}
 
 }

@@ -13,6 +13,7 @@
 
 #include "Renderer/Renderer.h"
 #include "Renderer/ViewPort.h"
+#include "Renderer/Model.h"
 
 #include <glad/glad.h>
 
@@ -24,6 +25,7 @@ namespace FireFly
 		ViewPort::SetRatio(1.0f);
 		m_Window.reset(Window::Create(prop));
 		m_Window->SetEventCallback(FF_BIND_EVENT_FN(Application::OnEvent));
+		Renderer::SetViewPort(320, 0, 960, 960);
 		void* window_ptr = m_Window->GetWindowHandle();
 		m_Input.reset(Input::Create(window_ptr));
 		m_ImGuiLayer = std::make_shared<ImGuiLayer>("ImGui", window_ptr);
@@ -32,6 +34,7 @@ namespace FireFly
 		TimeStep::Init();
 		MouseController::SetWindow(m_Window->GetWindowHandle());
 		Renderer::Init();
+		Model::InitAssimpLogger();
 	}
 
 	Application::~Application()
@@ -42,7 +45,7 @@ namespace FireFly
 	{
 		while (m_Running)
 		{
-			Renderer::SetClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+			Renderer::SetClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 			Renderer::Clear();
 			
 			m_LayerStack.OnUpdate(m_Input);
@@ -52,10 +55,8 @@ namespace FireFly
 			m_ImGuiLayer->OnImGuiRender();
 			m_ImGuiLayer->End();
 
-
 			TimeStep::OnUpdate();
 
-			Renderer::DrawIndexed(6);
 			m_Window->OnUpdate();
 		}
 	}

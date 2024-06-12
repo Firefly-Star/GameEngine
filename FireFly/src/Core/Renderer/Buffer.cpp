@@ -70,6 +70,18 @@ namespace FireFly
 		return nullptr;
 	}
 
+	Ref<VertexBuffer> VertexBuffer::Create()
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::OpenGL:
+			return std::make_shared<OpenGLVertexBuffer>();
+		}
+
+		FF_CORE_ASSERT(false, "Unknown API!");
+		return nullptr;
+	}
+
 	//----------IndexBuffer----------
 	Ref<IndexBuffer> IndexBuffer::Create(unsigned int* indices, unsigned int size)
 	{
@@ -77,6 +89,18 @@ namespace FireFly
 		{
 		case RendererAPI::API::OpenGL:
 			return std::make_shared<OpenGLIndexBuffer>(indices, size);
+		}
+
+		FF_CORE_ASSERT(false, "Unknown API!");
+		return nullptr;
+	}
+
+	Ref<IndexBuffer> IndexBuffer::Create()
+	{
+		switch (RendererAPI::GetAPI())
+		{
+		case RendererAPI::API::OpenGL:
+			return std::make_shared<OpenGLIndexBuffer>();
 		}
 
 		FF_CORE_ASSERT(false, "Unknown API!");

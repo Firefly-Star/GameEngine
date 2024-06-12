@@ -2,6 +2,12 @@
 
 namespace FireFly
 {
+	enum class TextureType
+	{
+		None = 0,
+		DeffuseTexture, NormalTexture, BumpTexture, SpecularTexture, AmbientOcclusionTexture, 
+		DisplacementTexture, MetalnessTexture, RoughnessTexture, OpacityTexture, EmissiveTexture
+	};
 	class Texture
 	{
 	public:

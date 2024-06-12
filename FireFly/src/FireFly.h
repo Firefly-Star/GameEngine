@@ -26,6 +26,9 @@
 #include "Core/Renderer/Texture.h"
 #include "Core/Renderer/Buffer.h"
 #include "Core/Renderer/Shader.h"
+#include "Core/Renderer/Mesh.h"
+#include "Core/Renderer/Model.h"
+#include "Core/Renderer/FrameBuffer.h"
 
 //TimeStep
 #include "Core/TimeStep.h"

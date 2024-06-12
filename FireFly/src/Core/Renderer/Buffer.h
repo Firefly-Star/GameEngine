@@ -45,9 +45,11 @@ namespace FireFly
 		virtual ~VertexBuffer(){}
 
 		static Ref<VertexBuffer> Create(float* vertices, unsigned int size);
+		static Ref<VertexBuffer> Create();
 
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
+		virtual void SetData(void* buffer, unsigned int size) = 0;
 	};
 
 	//----------IndexBuffer----------
@@ -57,9 +59,11 @@ namespace FireFly
 		virtual ~IndexBuffer(){}
 
 		static Ref<IndexBuffer> Create(unsigned int* indices, unsigned int size);
+		static Ref<IndexBuffer> Create();
 
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
+		virtual void SetData(void* buffer, unsigned int size) = 0;
 
 		virtual unsigned int GetCount() const = 0;
  	};

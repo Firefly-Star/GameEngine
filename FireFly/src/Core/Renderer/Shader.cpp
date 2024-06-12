@@ -76,7 +76,7 @@ namespace FireFly
 			}
 		}
 
-		FF_CORE_ASSERT(!result.empty(), "Shader type not found!");
+		FF_CORE_ASSERT(!result.empty(), "Shader type not found: {}", filepath);
 		file.close();
 		return result;
 	}

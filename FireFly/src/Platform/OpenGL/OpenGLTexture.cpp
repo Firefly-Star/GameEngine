@@ -1,7 +1,7 @@
 #include "ffpch.h"
 
 #include "OpenGLTexture.h"
-#include "stb_image/stb_image.h"
+#include <stb_image.h>
 
 #include <Glad/glad.h>
 
@@ -12,9 +12,9 @@ namespace FireFly
 		stbi_set_flip_vertically_on_load(1);
 		int width, height, channels;
 		unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
-		FF_CORE_INFO("{}, {}", filepath, channels);
+		//DEBUG_ONLY(FF_CORE_TRACE("Loading texture:{}, {}", filepath, channels));
 
-		FF_CORE_ASSERT(data, "Failed to load the texture!");
+		FF_CORE_ASSERT(data, "Failed to load the texture: {}", filepath);
 
 		m_Width = width;
 		m_Height = height;
@@ -34,10 +34,10 @@ namespace FireFly
 		glTexImage2D(GL_TEXTURE_2D, 0, internalformat, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, data);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		stbi_image_free(data);
 	}

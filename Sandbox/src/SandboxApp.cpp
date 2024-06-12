@@ -2,6 +2,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <imgui.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#if 0
 struct Material
 {
 	int texture;
@@ -22,10 +27,10 @@ class EditLayer : public FireFly::Layer
 {
 public:
 	EditLayer()
-		:Layer(){}
+		:Layer() {}
 	virtual void OnAttach() override
 	{
-		m_Shader = FireFly::Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Shaders/BasicShader.glsl");
+		m_Shader = (FireFly::Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Shaders/BasicShader.glsl"));
 		m_Shader->Bind();
 		unsigned int indices[] = {
 			0, 1, 2,
@@ -83,19 +88,19 @@ public:
 		m_VB->Bind();
 		m_Texture = FireFly::Texture2D::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Texture/Robin.jpg");
 		m_PureWhiteTexture = FireFly::Texture2D::Create();
-		unsigned char PWT[] = { 255, 255, 255 };
+		unsigned char PWT[] = {255, 255, 255, 255};
 		m_PureWhiteTexture->SetTexture(PWT, 1, 1);
-		m_PureWhiteTexture->Bind();
 		m_Texture->Bind(1);
+		m_PureWhiteTexture->Bind();
 		m_Layout = FireFly::BufferLayout::Create();
 		m_Layout->Push({ "Position", FireFly::LayoutElementType::Float3 });
 		m_Layout->Push({ "TexCoord", FireFly::LayoutElementType::Float2 });
 		m_Layout->Push({ "Normal", FireFly::LayoutElementType::Float3 });
 		m_Layout->UploadLayout();
 		m_Comtroller.SetIsEnableVRotation(true);
-		m_Comtroller.SetRotationSpeed(30.0f);
+		m_Comtroller.SetRotationSpeed(60.0f);
 		m_Comtroller.SetPanSpeed(2.0f);
-		m_Material.texture = 1;
+		m_Material.texture = 0;
 		m_Material.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		m_Material.specular = { 0.9f, 0.9f, 0.9f };
 		m_Material.shininess = 128.0f;
@@ -105,9 +110,9 @@ public:
 	{
 		float time = FireFly::TimeStep::GetTime();
 		//m_Light.position = { sin(time / 2) * 5, 0.0f,cos(time / 2) * 5 - 20.0f };
-		m_Light.position = { -5, 0.0f, -5.0f };
+		m_Light.position = { -5.0f, 0.0f, -5.0f };
 		m_Light.ambient = { 0.2f, 0.2f, 0.2f };
-		m_Light.diffuse = { 0.2f, abs(sin(time)), 0.8f };
+		m_Light.diffuse = { 0.3f, abs(sin(time)), 0.4f };
 		m_Light.specular = { 0.9f, 0.9f, 0.9f };
 		
 		glm::mat4 modelMatrix =
@@ -156,6 +161,100 @@ FireFly::Ref<FireFly::Application> FireFly::CreateApplication()
 	FireFly::Ref<Application> app = std::make_shared<FireFly::Application>();
 	
 	app->PushLayer(std::make_shared<EditLayer>());
+
+	return app;
+}
+#endif
+
+
+
+
+class ModelLayer : public FireFly::Layer
+{
+public:
+	ModelLayer()
+		:Layer(), m_LightPos({0.0f, 0.0f, 0.0f}), m_LightColor({1.0f, 1.0f, 1.0f}), 
+		m_FilePath("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Model/nanosuit/nanosuit.obj"), 
+		m_Model("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Model/nanosuit/nanosuit.obj", 
+			"C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Model/nanosuit/")
+	{
+		m_Shader = FireFly::Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Shaders/Model.glsl");
+		m_Shader->Bind();
+		m_Controller.SetIsEnableVRotation(true);
+		m_Controller.SetRotationSpeed(60.0f);
+		m_Controller.SetPanSpeed(2.0f);
+
+		std::vector<FireFly::Mesh::Vertex> vertices =
+		{
+			{{-5.0f, -5.0f, 0.0f}, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), {0.0f, 0.0f}},
+			{{ 5.0f, -5.0f, 0.0f}, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), {1.0f, 0.0f}},
+			{{ 5.0f,  5.0f, 0.0f}, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), {1.0f, 1.0f}},
+			{{-5.0f,  5.0f, 0.0f}, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), {0.0f, 1.0f}},
+		};
+
+		std::vector<FireFly::Mesh::Index> indices =
+		{
+			{0, 1, 2},
+			{2, 3, 0}
+		};
+
+		std::vector<FireFly::Mesh::TextureInfo> textures =
+		{
+			{FireFly::Texture2D::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Texture/Robin.jpg"),
+			FireFly::TextureType::DeffuseTexture}
+		};
+		m_Mesh = new FireFly::Mesh(vertices, indices, textures);
+	}
+	void OnUpdate(FireFly::Ref<FireFly::Input> input) override
+	{
+		m_Controller.OnUpdate(input);
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), {0.0f, -2.0f, -10.0f}) * glm::scale(glm::mat4(1.0f), { 0.3f, 0.3f, 0.3f });
+		glm::mat3 normalmat = glm::inverse(glm::transpose(glm::mat3(model)));
+		m_Shader->UploadUniform(m_Controller.GetCamera().GetPVmatrix(), "u_PVmatrix");
+		m_Shader->UploadUniform(model, "u_Modelmatrix");
+		m_Shader->UploadUniform(normalmat, "u_NormalMat");
+		m_Shader->UploadUniform(m_Controller.GetCamera().GetPosition().x, m_Controller.GetCamera().GetPosition().y, m_Controller.GetCamera().GetPosition().z, "u_ViewPos");
+
+		m_Shader->UploadUniform(m_LightPos.x, m_LightPos.y, m_LightPos.z, "u_Light.Pos");
+		m_Shader->UploadUniform(0.1f, 0.1f, 0.1f, "u_Light.Ambient");
+		m_Shader->UploadUniform(m_LightColor.x, m_LightColor.y, m_LightColor.z, "u_Light.Diffuse");
+		m_Shader->UploadUniform(1.0f, 1.0f, 1.0f, "u_Light.Specular");
+
+		m_Model.Render(m_Shader);
+		auto meshes = m_Model.GetMeshes();
+		//meshes[3].Render(m_Shader);
+		//m_Mesh->Render(m_Shader);
+	}
+	bool OnEvent(FireFly::Event& e) override
+	{
+		return m_Controller.OnEvent(e);
+	}
+
+	void OnImGuiRender() override
+	{
+		ImGui::Begin("Set Light Pos");
+		ImGui::DragFloat3("LightPos", &m_LightPos[0]);
+		ImGui::DragFloat3("LightColor", &m_LightColor[0], 0.05f, 0.0f, 1.0f);
+		ImGui::End();
+		ImGui::Begin("Upload File");
+		ImGui::InputText("FilePath", &m_FilePath[0], 100);
+		ImGui::End();
+	}
+private:
+	FireFly::Ref<FireFly::Shader> m_Shader;
+	FireFly::Model m_Model;
+	FireFly::PerspectiveCameraController m_Controller;
+	glm::vec3 m_LightPos;
+	glm::vec3 m_LightColor;
+	FireFly::Mesh* m_Mesh;
+	std::string m_FilePath;
+};
+
+FireFly::Ref<FireFly::Application> FireFly::CreateApplication()
+{
+	FireFly::Ref<Application> app = std::make_shared<FireFly::Application>();
+
+	app->PushLayer(std::make_shared<ModelLayer>());
 
 	return app;
 }
