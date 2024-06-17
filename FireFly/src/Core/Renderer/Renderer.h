@@ -21,10 +21,12 @@ namespace FireFly
 		static void Init();
 
 		static void Execute();
+
 	private:
 		static RendererCommandQueue s_CommandQueue;
 	};
 
+	//---------Helpers----------------
 }
 
 #define FF_RENDER(code) \

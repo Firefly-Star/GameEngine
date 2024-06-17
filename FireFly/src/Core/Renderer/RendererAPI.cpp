@@ -59,4 +59,5 @@ namespace FireFly
 	{
 		s_Instance->DrawIndexedImpl(count, isEnableDepthTest);
 	}
+
 }

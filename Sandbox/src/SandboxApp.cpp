@@ -173,43 +173,49 @@ class ModelLayer : public FireFly::Layer
 {
 public:
 	ModelLayer()
-		:Layer(), m_LightPos({0.0f, 0.0f, 0.0f}), m_LightColor({1.0f, 1.0f, 1.0f}), 
+		:Layer(), m_LightPos({ -5.0f, 0.0f, -3.0f }), m_LightColor({ 1.0f, 0.5f, 0.6f }), m_LightShininess(128.0f), 
 		m_FilePath("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Model/nanosuit/nanosuit.obj"), 
 		m_Model("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Model/nanosuit/nanosuit.obj", 
 			"C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Model/nanosuit/")
 	{
 		m_Shader = FireFly::Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Shaders/Model.glsl");
-		m_Shader->Bind();
 		m_Controller.SetIsEnableVRotation(true);
 		m_Controller.SetRotationSpeed(60.0f);
 		m_Controller.SetPanSpeed(2.0f);
 
-		std::vector<FireFly::Mesh::Vertex> vertices =
-		{
-			{{-5.0f, -5.0f, 0.0f}, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), {0.0f, 0.0f}},
-			{{ 5.0f, -5.0f, 0.0f}, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), {1.0f, 0.0f}},
-			{{ 5.0f,  5.0f, 0.0f}, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), {1.0f, 1.0f}},
-			{{-5.0f,  5.0f, 0.0f}, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), {0.0f, 1.0f}},
-		};
+		auto [width, height] = FireFly::ViewPort::GetSize();
+		m_FrameBuffer = FireFly::FrameBuffer::Create(width, height, FireFly::FrameBufferFormat::RGBA8);
+		m_TextureShader = FireFly::Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Shaders/DrawTexture.glsl");
 
-		std::vector<FireFly::Mesh::Index> indices =
+		float vertices[] =
 		{
-			{0, 1, 2},
-			{2, 3, 0}
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f
 		};
-
-		std::vector<FireFly::Mesh::TextureInfo> textures =
+		unsigned int indices[] =
 		{
-			{FireFly::Texture2D::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Texture/Robin.jpg"),
-			FireFly::TextureType::DeffuseTexture}
+			0, 1, 2,
+			2, 3, 0
 		};
-		m_Mesh = new FireFly::Mesh(vertices, indices, textures);
+		m_VBO = FireFly::VertexBuffer::Create(vertices, sizeof(vertices));
+		m_IBO = FireFly::IndexBuffer::Create(indices, sizeof(indices));
+		m_Layout = FireFly::BufferLayout::Create();
+		m_Layout->Push({ "Position", FireFly::LayoutElementType::Float3 });
+		m_Layout->Push({ "TexCoord", FireFly::LayoutElementType::Float2 });
 	}
-	void OnUpdate(FireFly::Ref<FireFly::Input> input) override
+
+	void OnUpdate() override
 	{
-		m_Controller.OnUpdate(input);
+		//m_FrameBuffer->Bind();
+		FireFly::Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		FireFly::Renderer::Clear();
+
+		m_Controller.OnUpdate();
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), {0.0f, -2.0f, -10.0f}) * glm::scale(glm::mat4(1.0f), { 0.3f, 0.3f, 0.3f });
 		glm::mat3 normalmat = glm::inverse(glm::transpose(glm::mat3(model)));
+		m_Shader->Bind();
 		m_Shader->UploadUniform(m_Controller.GetCamera().GetPVmatrix(), "u_PVmatrix");
 		m_Shader->UploadUniform(model, "u_Modelmatrix");
 		m_Shader->UploadUniform(normalmat, "u_NormalMat");
@@ -218,13 +224,23 @@ public:
 		m_Shader->UploadUniform(m_LightPos.x, m_LightPos.y, m_LightPos.z, "u_Light.Pos");
 		m_Shader->UploadUniform(0.1f, 0.1f, 0.1f, "u_Light.Ambient");
 		m_Shader->UploadUniform(m_LightColor.x, m_LightColor.y, m_LightColor.z, "u_Light.Diffuse");
-		m_Shader->UploadUniform(1.0f, 1.0f, 1.0f, "u_Light.Specular");
+		m_Shader->UploadUniform(m_LightColor.x, m_LightColor.y, m_LightColor.z, "u_Light.Specular");
+		m_Shader->UploadUniform(m_LightShininess, "u_Light.Shininess");
 
 		m_Model.Render(m_Shader);
-		auto meshes = m_Model.GetMeshes();
-		//meshes[3].Render(m_Shader);
-		//m_Mesh->Render(m_Shader);
+
+		/*m_FrameBuffer->UnBind();
+		FireFly::Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		FireFly::Renderer::Clear();
+		m_TextureShader->Bind();
+		m_FrameBuffer->BindTexture(5);
+		m_TextureShader->UploadUniform(5, "u_Texture");
+		m_VBO->Bind();
+		m_IBO->Bind();
+		m_Layout->UploadLayout();
+		FireFly::Renderer::DrawIndexed(m_IBO->GetCount());*/
 	}
+
 	bool OnEvent(FireFly::Event& e) override
 	{
 		return m_Controller.OnEvent(e);
@@ -232,9 +248,10 @@ public:
 
 	void OnImGuiRender() override
 	{
-		ImGui::Begin("Set Light Pos");
+		ImGui::Begin("Set Light Params");
 		ImGui::DragFloat3("LightPos", &m_LightPos[0]);
 		ImGui::DragFloat3("LightColor", &m_LightColor[0], 0.05f, 0.0f, 1.0f);
+		ImGui::DragFloat("LightShininess", &m_LightShininess, 1.0f, 16.0f, 1024.0f);
 		ImGui::End();
 		ImGui::Begin("Upload File");
 		ImGui::InputText("FilePath", &m_FilePath[0], 100);
@@ -242,12 +259,17 @@ public:
 	}
 private:
 	FireFly::Ref<FireFly::Shader> m_Shader;
+	FireFly::Ref<FireFly::Shader> m_TextureShader;
 	FireFly::Model m_Model;
 	FireFly::PerspectiveCameraController m_Controller;
 	glm::vec3 m_LightPos;
 	glm::vec3 m_LightColor;
-	FireFly::Mesh* m_Mesh;
+	float m_LightShininess;
 	std::string m_FilePath;
+	FireFly::Ref<FireFly::FrameBuffer> m_FrameBuffer;
+	FireFly::Ref<FireFly::VertexBuffer> m_VBO;
+	FireFly::Ref<FireFly::IndexBuffer> m_IBO;
+	FireFly::Ref<FireFly::BufferLayout> m_Layout;
 };
 
 FireFly::Ref<FireFly::Application> FireFly::CreateApplication()

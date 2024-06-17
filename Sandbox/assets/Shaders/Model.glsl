@@ -33,6 +33,8 @@ struct Light
     vec3 Ambient;
     vec3 Diffuse;
     vec3 Specular;
+
+    float Shininess;
 };
 
 in vec2 v_TexCoords;
@@ -50,17 +52,15 @@ void main()
 
     vec3 Normal = normalize(v_Normal);
     vec3 LightDir = normalize(u_Light.Pos - v_FragPos);
-    vec3 HalfWayDir = normalize((u_Light.Pos - v_FragPos) + (u_ViewPos - v_FragPos));
+    vec3 HalfWayDir = normalize(LightDir + normalize(u_ViewPos - v_FragPos));
 
     vec3 AmbientColor = u_Light.Ambient * OriginColor.xyz;
 
     vec3 DiffuseColor = max(dot(Normal, LightDir), 0.0) * u_Light.Diffuse * OriginColor.xyz;
 
-    vec3 SpecularColor = pow(max(dot(HalfWayDir, Normal), 0.0), 128) * u_Light.Specular * texture(texture_diffuse1, v_TexCoords).xyz;
+    //vec3 SpecularColor = pow(max(dot(HalfWayDir, Normal), 0.0), 256) * u_Light.Specular * texture(texture_diffuse1, v_TexCoords).xyz;
+    vec3 SpecularColor = pow(max(dot(HalfWayDir, Normal), 0.0), u_Light.Shininess) * u_Light.Specular * vec3(1.0, 1.0, 1.0);
 
-
-    FragColor = vec4(AmbientColor + DiffuseColor + SpecularColor, 1.0);
+    FragColor = vec4(AmbientColor + DiffuseColor + SpecularColor, 0.8);
     FragColor = clamp(FragColor, 0.0, 1.0);
-    //FragColor = texture(texture_diffuse1, v_TexCoords);
-    //FragColor = texture(texture_specular1, v_TexCoords);
 }

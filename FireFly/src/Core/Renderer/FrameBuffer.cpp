@@ -8,15 +8,14 @@
 namespace FireFly
 {
 	//----------------FrameBuffer---------------
-	FrameBuffer* FrameBuffer::Create(unsigned int width, unsigned int height, FrameBufferFormat format)
+	Ref<FrameBuffer> FrameBuffer::Create(unsigned int width, unsigned int height, FrameBufferFormat format, bool isEnableStencil)
 	{
-		FrameBuffer* result = nullptr;
 		switch (RendererAPI::GetAPI())
 		{
-		case RendererAPI::API::OpenGL: result = new OpenGLFrameBuffer(width, height, format);
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLFrameBuffer>(width, height, format, isEnableStencil);
 		}
 		//FrameBufferPool::GetGlobal()->Add(std::make_shared<FrameBuffer>(result));
-		return result;
+		return nullptr;
 	}
 
 	//----------------FrameBufferPool-----------------

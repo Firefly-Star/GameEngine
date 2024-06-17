@@ -29,6 +29,7 @@
 #include "Core/Renderer/Mesh.h"
 #include "Core/Renderer/Model.h"
 #include "Core/Renderer/FrameBuffer.h"
+#include "Core/Renderer/ViewPort.h"
 
 //TimeStep
 #include "Core/TimeStep.h"

@@ -191,7 +191,7 @@ namespace FireFly
 			location = glGetUniformLocation(m_RendererID, name.c_str());
 			if (location == -1)
 			{
-				FF_CORE_WARN("Failed to locate the Uniform \"{0}\"!", name);
+				//FF_CORE_WARN("Failed to locate the Uniform \"{0}\"!", name);
 				return -1;
 			}
 			m_UniformLocationMap[name] = location;

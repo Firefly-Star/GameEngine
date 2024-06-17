@@ -7,12 +7,14 @@ namespace FireFly
 	class Input
 	{
 	public:
-		static Input* Create(void* window);
-		Input(void* window): m_Window(window) {}
-		virtual bool IsKeyPressed(int keycode) const = 0;
-		virtual bool IsMousePressed(int button) const = 0;
-		virtual std::pair<float, float> GetMousePos() const = 0;
+		static void Init(void* window);
+		static bool IsKeyPressed(int keycode);
+		static bool IsMousePressed(int button);
+		static std::pair<float, float> GetMousePos();
+		virtual bool IsKeyPressedImpl(int keycode) const = 0;
+		virtual bool IsMousePressedImpl(int button) const = 0;
+		virtual std::pair<float, float> GetMousePosImpl() const = 0;
 	protected:
-		void* m_Window;
+		static Scope<Input> s_Instance;
 	};
 }

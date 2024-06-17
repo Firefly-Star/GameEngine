@@ -18,7 +18,7 @@ namespace FireFly
 		OrthoCameraController(float wasr, float tasr, bool enableRotation = false, float zoomLevel = 1.0f);
 
 		void OnEvent(Event& e);
-		void OnUpdate(Ref<Input> input);
+		void OnUpdate();
 
 		inline OrthoCamera& GetCamera() { return m_Camera; }
 	private:
@@ -43,12 +43,14 @@ namespace FireFly
 	public:
 		PerspectiveCameraController();
 		PerspectiveCameraController(const glm::vec4& persparams);
-		void OnUpdate(Ref<Input> input);
+		void OnUpdate();
 		bool OnEvent(Event& e);
-		PerspectiveCamera& GetCamera();
-		void SetPanSpeed(float panspeed);
-		void SetRotationSpeed(float rotationspeed);
-		void SetIsEnableVRotation(bool isEnable);
+
+		inline PerspectiveCamera& GetCamera() { return m_Camera; }
+		inline void SetPanSpeed(float panspeed) { m_PanSpeed = panspeed; }
+		inline void SetRotationSpeed(float rotationspeed) { m_RotationSpeed = rotationspeed; }
+		inline void SetIsEnableVRotation(bool isEnable) { m_IsEnableVRotation = isEnable; }
+		void SetIsEnableRoar(bool isEnable) { m_IsEnableRoar = isEnable; }
 	private:
 		bool OnMouseMoveEvent(MouseMovedEvent& e);
 		bool OnKeyPressEvent(KeyPressedEvent& e);
@@ -61,5 +63,8 @@ namespace FireFly
 		glm::vec3 m_Up;
 		bool m_IsEnableVRotation;
 		bool m_IsMouseHidden;
+		bool m_IsEnableRoar;
+		float m_RotationX;
+		float m_RotationY;
 	};
 }

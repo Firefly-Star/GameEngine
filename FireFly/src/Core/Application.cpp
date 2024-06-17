@@ -14,6 +14,9 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/ViewPort.h"
 #include "Renderer/Model.h"
+//TEMP
+#include <glm/gtc/matrix_transform.hpp>
+#include <imgui.h>
 
 #include <glad/glad.h>
 
@@ -23,18 +26,20 @@ namespace FireFly
 	{
 		WindowProp prop(1600, 960);
 		ViewPort::SetRatio(1.0f);
+		ViewPort::SetSize(960, 960);
 		m_Window.reset(Window::Create(prop));
 		m_Window->SetEventCallback(FF_BIND_EVENT_FN(Application::OnEvent));
 		Renderer::SetViewPort(320, 0, 960, 960);
 		void* window_ptr = m_Window->GetWindowHandle();
-		m_Input.reset(Input::Create(window_ptr));
 		m_ImGuiLayer = std::make_shared<ImGuiLayer>("ImGui", window_ptr);
 		m_ImGuiLayer->OnAttach();
 
 		TimeStep::Init();
 		MouseController::SetWindow(m_Window->GetWindowHandle());
 		Renderer::Init();
+		Input::Init(m_Window->GetWindowHandle());
 		Model::InitAssimpLogger();
+		
 	}
 
 	Application::~Application()
@@ -45,17 +50,17 @@ namespace FireFly
 	{
 		while (m_Running)
 		{
-			Renderer::SetClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-			Renderer::Clear();
+			TimeStep::OnUpdate();
+			/*Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+			Renderer::Clear();*/
 			
-			m_LayerStack.OnUpdate(m_Input);
+			m_LayerStack.OnUpdate();
 			
 			m_ImGuiLayer->Begin();
 			m_LayerStack.OnImGuiRender();
 			m_ImGuiLayer->OnImGuiRender();
-			m_ImGuiLayer->End();
 
-			TimeStep::OnUpdate();
+			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();
 		}

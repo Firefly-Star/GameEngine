@@ -169,6 +169,7 @@
     <ClInclude Include="src\Core\Renderer\Renderer.h" />
     <ClInclude Include="src\Core\Renderer\RendererAPI.h" />
     <ClInclude Include="src\Core\Renderer\RendererCommandQueue.h" />
+    <ClInclude Include="src\Core\Renderer\RenderParams.h" />
     <ClInclude Include="src\Core\Renderer\Shader.h" />
     <ClInclude Include="src\Core\Renderer\Texture.h" />
     <ClInclude Include="src\Core\Renderer\ViewPort.h" />

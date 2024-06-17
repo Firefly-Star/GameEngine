@@ -25,34 +25,34 @@ namespace FireFly
 		dispatcher.EventDispatch<WindowResizeEvent>(FF_BIND_EVENT_FN(OrthoCameraController::OnWindowResizeEvent));
 	}
 
-	void OrthoCameraController::OnUpdate(Ref<Input> input)
+	void OrthoCameraController::OnUpdate()
 	{
 		float deltaTime = TimeStep::GetDeltaTime();
 
-		if (input->IsKeyPressed(FF_KEY_W))
+		if (Input::IsKeyPressed(FF_KEY_W))
 		{
 			cameraPosition.y += CameraMoveSpeed * deltaTime;
 		}
-		else if (input->IsKeyPressed(FF_KEY_S))
+		else if (Input::IsKeyPressed(FF_KEY_S))
 		{
 			cameraPosition.y -= CameraMoveSpeed * deltaTime;
 		}
-		if (input->IsKeyPressed(FF_KEY_A))
+		if (Input::IsKeyPressed(FF_KEY_A))
 		{
 			cameraPosition.x -= CameraMoveSpeed * deltaTime;
 		}
-		else if (input->IsKeyPressed(FF_KEY_D))
+		else if (Input::IsKeyPressed(FF_KEY_D))
 		{
 			cameraPosition.x += CameraMoveSpeed * deltaTime;
 		}
 
 		if (m_EnableRotation)
 		{
-			if (input->IsKeyPressed(FF_KEY_Q))
+			if (Input::IsKeyPressed(FF_KEY_Q))
 			{
 				cameraRotation -= CameraRotateSpeed * deltaTime;
 			}
-			else if (input->IsKeyPressed(FF_KEY_E))
+			else if (Input::IsKeyPressed(FF_KEY_E))
 			{
 				cameraRotation += CameraRotateSpeed * deltaTime;
 			}
@@ -81,46 +81,82 @@ namespace FireFly
 	//---------------PerspectiveCemeraController----------------
 	PerspectiveCameraController::PerspectiveCameraController()
 		:m_Camera(), m_PanSpeed(1.0f), m_RotationSpeed(1.0f), m_MousePosX(-1.0f), m_MousePosY(-1.0f), m_IsMouseHidden(false), 
-		m_Orientation({0.0f, 0.0f, -1.0f}), m_Up({0.0f, 1.0f, 0.0f}), m_Position({0.0f, 0.0f, 0.0f}), m_IsEnableVRotation()
+		m_Orientation({0.0f, 0.0f, -1.0f}), m_Up({0.0f, 1.0f, 0.0f}), m_Position({0.0f, 0.0f, 0.0f}), m_IsEnableVRotation(false), 
+		m_IsEnableRoar(false), m_RotationX(0.0f), m_RotationY(0.0f)
 	{
 	}
 
 
 	PerspectiveCameraController::PerspectiveCameraController(const glm::vec4& persparams)
 		:m_Camera(persparams), m_PanSpeed(1.0f), m_RotationSpeed(1.0f), m_MousePosX(-1.0f), m_MousePosY(-1.0f), m_IsMouseHidden(false), 
-		m_Orientation({ 0.0f, 0.0f, -1.0f }), m_Up({0.0f, 1.0f, 0.0f}), m_Position({0.0f, 0.0f, 0.0f}), m_IsEnableVRotation(false)
+		m_Orientation({ 0.0f, 0.0f, -1.0f }), m_Up({0.0f, 1.0f, 0.0f}), m_Position({0.0f, 0.0f, 0.0f}), m_IsEnableVRotation(false), 
+		m_IsEnableRoar(false), m_RotationX(0.0f), m_RotationY(0.0f)
 	{
 	}
 
-	void PerspectiveCameraController::OnUpdate(Ref<Input> input)
+	void PerspectiveCameraController::OnUpdate()
 	{
 		float deltatime = TimeStep::GetDeltaTime();
+		
 		glm::vec3 right = glm::cross(m_Orientation, m_Up);
-		if (input->IsKeyPressed(FF_KEY_W))
+		if (m_IsEnableRoar)
 		{
-			m_Position += m_Orientation * m_PanSpeed * deltatime;
+			if (Input::IsKeyPressed(FF_KEY_W))
+			{
+				m_Position += m_Orientation * m_PanSpeed * deltatime;
+			}
+			else if (Input::IsKeyPressed(FF_KEY_S))
+			{
+				m_Position -= m_Orientation * m_PanSpeed * deltatime;
+			}
+			if (Input::IsKeyPressed(FF_KEY_A))
+			{
+				m_Position -= right * m_PanSpeed * deltatime;
+			}
+			else if (Input::IsKeyPressed(FF_KEY_D))
+			{
+				m_Position += right * m_PanSpeed * deltatime;
+			}
+			if (Input::IsKeyPressed(FF_KEY_SPACE))
+			{
+				m_Position += m_Up * deltatime;
+			}
+			else if (Input::IsKeyPressed(FF_KEY_LEFT_SHIFT))
+			{
+				m_Position -= m_Up * deltatime;
+			}
 		}
-		else if (input->IsKeyPressed(FF_KEY_S))
+		else
 		{
-			m_Position -= m_Orientation * m_PanSpeed * deltatime;
+			glm::vec3 orientationX = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationX), { 0.0f, 1.0f, 0.0f }) * 
+									glm::vec4({ 0.0f, 0.0f, -1.0f, 1.0f }));
+			glm::vec3 orientationY = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationX + 90.0f), { 0.0f, 1.0f, 0.0f }) * 
+									glm::vec4({ 0.0f, 0.0f, -1.0f, 1.0f }));
+			if (Input::IsKeyPressed(FF_KEY_W))
+			{
+				m_Position += orientationX * m_PanSpeed * deltatime;
+			}
+			else if (Input::IsKeyPressed(FF_KEY_S))
+			{
+				m_Position -= orientationX * m_PanSpeed * deltatime;
+			}
+			if (Input::IsKeyPressed(FF_KEY_A))
+			{
+				m_Position += orientationY * m_PanSpeed * deltatime;
+			}
+			else if (Input::IsKeyPressed(FF_KEY_D))
+			{
+				m_Position -= orientationY * m_PanSpeed * deltatime;
+			}
+			if (Input::IsKeyPressed(FF_KEY_SPACE))
+			{
+				m_Position.y += m_PanSpeed * m_PanSpeed * deltatime;
+			}
+			else if (Input::IsKeyPressed(FF_KEY_LEFT_SHIFT))
+			{
+				m_Position.y -= m_PanSpeed * m_PanSpeed * deltatime;
+			}
 		}
-		if (input->IsKeyPressed(FF_KEY_A))
-		{
-			m_Position -= right * m_PanSpeed * deltatime;
-		}
-		else if (input->IsKeyPressed(FF_KEY_D))
-		{
-			m_Position += right * m_PanSpeed * deltatime;
-		}
-		if (input->IsKeyPressed(FF_KEY_SPACE))
-		{
-			m_Position += m_Up * deltatime;
-		}
-		else if (input->IsKeyPressed(FF_KEY_LEFT_SHIFT))
-		{
-			m_Position -= m_Up * deltatime;
-		}
-
 		m_Camera.SetPosition(m_Position);
 		
 	}
@@ -148,35 +184,74 @@ namespace FireFly
 			}
 			else
 			{
-				float deltaX = mouseX - m_MousePosX;
-				float deltaY = mouseY - m_MousePosY;
-				m_MousePosX = mouseX;
-				m_MousePosY = mouseY;
-				if (deltaX > 0)
+				if (m_IsEnableRoar)
 				{
-					m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), m_Up) * glm::vec4(m_Orientation, 1.0f));
-				}
-				else if (deltaX < 0)
-				{
-					m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(+m_RotationSpeed * deltatime), m_Up) * glm::vec4(m_Orientation, 1.0f));
-				}
-				if (m_IsEnableVRotation)
-				{
-					glm::vec right = glm::cross(m_Orientation, m_Up);
-					if (deltaY > 0)
+					float deltaX = mouseX - m_MousePosX;
+					float deltaY = mouseY - m_MousePosY;
+					m_MousePosX = mouseX;
+					m_MousePosY = mouseY;
+					if (deltaX > 0)
 					{
-						m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), right) * glm::vec4(m_Orientation, 1.0f));
-						m_Up = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), right) * glm::vec4(m_Up, 1.0f));
+						m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), m_Up) * glm::vec4(m_Orientation, 1.0f));
 					}
-					else if (deltaY < 0)
+					else if (deltaX < 0)
 					{
-						m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationSpeed * deltatime), right) * glm::vec4(m_Orientation, 1.0f));
-						m_Up = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationSpeed * deltatime), right) * glm::vec4(m_Up, 1.0f));
+						m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(+m_RotationSpeed * deltatime), m_Up) * glm::vec4(m_Orientation, 1.0f));
 					}
+					if (m_IsEnableVRotation)
+					{
+						glm::vec right = glm::cross(m_Orientation, m_Up);
+						if (deltaY > 0)
+						{
+							m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), right) * glm::vec4(m_Orientation, 1.0f));
+							m_Up = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-m_RotationSpeed * deltatime), right) * glm::vec4(m_Up, 1.0f));
+						}
+						else if (deltaY < 0)
+						{
+							m_Orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationSpeed * deltatime), right) * glm::vec4(m_Orientation, 1.0f));
+							m_Up = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationSpeed * deltatime), right) * glm::vec4(m_Up, 1.0f));
+						}
+					}
+					m_Camera.SetOrientation(m_Orientation);
+					m_Camera.SetUp(m_Up);
+				}
+				else
+				{
+					float deltaX = mouseX - m_MousePosX;
+					float deltaY = mouseY - m_MousePosY;
+					m_MousePosX = mouseX;
+					m_MousePosY = mouseY;
+					if (deltaX < 0)
+					{
+						m_RotationX += m_RotationSpeed * deltatime;
+					}
+					else if (deltaX > 0)
+					{
+						m_RotationX -= m_RotationSpeed * deltatime;
+					}
+					if (m_IsEnableVRotation)
+					{
+						if (deltaY < 0)
+						{
+							m_RotationY += m_RotationSpeed * deltatime;
+							m_RotationY = std::min( 90.0f, m_RotationY);
+						}
+						else if (deltaY > 0)
+						{
+							m_RotationY -= m_RotationSpeed * deltatime;
+							m_RotationY = std::max(-90.0f, m_RotationY);
+						}
+					}
+					glm::vec3 orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationX), { 0.0f, 1.0f, 0.0f }) * 
+											glm::vec4({ 0.0f, 0.0f, -1.0f, 1.0f }));;
+					glm::vec3 right = glm::cross(orientation, {0.0f, 1.0f, 0.0f});
+					orientation = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(m_RotationY), right) *
+								glm::vec4(orientation, 1.0f));
+					glm::vec3 up = glm::cross(right, orientation);
+					m_Camera.SetOrientation(orientation);
+					m_Camera.SetUp(up);
 				}
 			}
-			m_Camera.SetOrientation(m_Orientation);
-			m_Camera.SetUp(m_Up);
 		}
 		return false;
 	}
@@ -196,27 +271,6 @@ namespace FireFly
 			}
 		}
 		return false;
-	}
-
-	
-	PerspectiveCamera& PerspectiveCameraController::GetCamera()
-	{
-		return m_Camera;
-	}
-
-	void PerspectiveCameraController::SetPanSpeed(float panspeed)
-	{
-		m_PanSpeed = panspeed;
-	}
-
-	void PerspectiveCameraController::SetRotationSpeed(float rotationspeed)
-	{
-		m_RotationSpeed = rotationspeed;
-	}
-
-	void PerspectiveCameraController::SetIsEnableVRotation(bool isEnable)
-	{
-		m_IsEnableVRotation = isEnable;
 	}
 
 }

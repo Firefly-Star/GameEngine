@@ -20,7 +20,7 @@ namespace FireFly
 		bool EraseOverLayer(Ref<Layer> layer);
 
 		bool OnEvent(Event& e);
-		void OnUpdate(Ref<Input> input);
+		void OnUpdate();
 		void OnImGuiRender();
 
 		inline const std::vector<Ref<Layer>>& GetLayers() { return m_Layers; }

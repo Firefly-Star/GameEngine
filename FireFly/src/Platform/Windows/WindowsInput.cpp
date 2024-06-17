@@ -1,12 +1,11 @@
 #include "ffpch.h"
 
-#include <GLFW/glfw3.h>
 
 #include "WindowsInput.h"
 
 namespace FireFly
 {
-	bool WindowsInput::IsKeyPressed(int keycode) const
+	bool WindowsInput::IsKeyPressedImpl(int keycode) const
 	{
 		FF_CORE_ASSERT(m_Window, "Invalid Window!");
 		GLFWwindow* window = (GLFWwindow*)m_Window;
@@ -15,7 +14,7 @@ namespace FireFly
 		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
-	bool WindowsInput::IsMousePressed(int button) const
+	bool WindowsInput::IsMousePressedImpl(int button) const
 	{
 		FF_CORE_ASSERT(m_Window, "Invalid Window!");
 		GLFWwindow* window = (GLFWwindow*)m_Window;
@@ -25,7 +24,7 @@ namespace FireFly
 		return state == GLFW_PRESS;
 	}
 
-	std::pair<float, float> WindowsInput::GetMousePos() const
+	std::pair<float, float> WindowsInput::GetMousePosImpl() const
 	{
 		FF_CORE_ASSERT(m_Window, "Invalid Window!");
 		GLFWwindow* window = (GLFWwindow*)m_Window;
