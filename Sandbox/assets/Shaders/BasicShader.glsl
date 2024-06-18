@@ -58,7 +58,7 @@ uniform Material u_Material;
 		
 void main()
 {
-	vec4 texcolor = texture(u_Material.texture, v_Texcoord) * u_Material.color;
+	vec4 texcolor = texture(u_Material.texture_Diffuse, v_Texcoord) * u_Material.color;
 	vec3 lightDir = normalize(u_Light.position - v_FragPos);
 	vec3 viewDir = normalize(u_ViewPos - v_FragPos);
 	vec3 halfwayDir = normalize(lightDir + viewDir);

@@ -13,6 +13,7 @@ int main(int argc, char** argv)
 }
 #endif
 
+#if 1
 //----------------------------------
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -22,6 +23,8 @@ int main(int argc, char** argv)
 #include "Core/Renderer/Renderer.h"
 #include "Core/Renderer/Texture.h"
 #include "Core/Renderer/FrameBuffer.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 int main(int argc, char** argv)
 {
 	using namespace FireFly;
@@ -42,6 +45,40 @@ int main(int argc, char** argv)
 	Ref<Shader> m_Shader = Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Shaders/DrawTexture.glsl");
 	Ref<Shader> m_ExShader = Shader::Create("C:/Users/Summer/Desktop/Game_Engine/FireFly/Sandbox/assets/Shaders/FrameBufferTest.glsl");
 	m_Shader->Bind();
+	/*float Boxvertices[] = {
+			-5.0f, -5.0f, -5.0f, 0.0f, 0.0f, 
+			 5.0f, -5.0f, -5.0f, 1.0f, 0.0f, 
+			 5.0f,  5.0f, -5.0f, 1.0f, 1.0f, 
+			-5.0f,  5.0f, -5.0f, 0.0f, 1.0f, 
+
+			-5.0f, -5.0f, -5.0f, 0.0f, 0.0f, 
+			-5.0f, -5.0f,  5.0f, 0.0f, 1.0f, 
+			-5.0f,  5.0f,  5.0f, 1.0f, 1.0f, 
+			-5.0f,  5.0f, -5.0f, 1.0f, 0.0f, 
+
+			-5.0f, -5.0f,  5.0f, 0.0f, 0.0f, 
+			 5.0f, -5.0f,  5.0f, 1.0f, 0.0f, 
+			 5.0f,  5.0f,  5.0f, 1.0f, 1.0f, 
+			-5.0f,  5.0f,  5.0f, 0.0f, 1.0f, 
+
+			 5.0f, -5.0f, -5.0f, 0.0f, 0.0f, 
+			 5.0f, -5.0f,  5.0f, 0.0f, 1.0f, 
+			 5.0f,  5.0f,  5.0f, 1.0f, 1.0f, 
+			 5.0f,  5.0f, -5.0f, 1.0f, 0.0f, 
+
+			-5.0f, -5.0f,  5.0f, 0.0f, 0.0f, 
+			-5.0f, -5.0f, -5.0f, 0.0f, 1.0f, 
+			 5.0f, -5.0f, -5.0f, 1.0f, 1.0f, 
+			 5.0f, -5.0f,  5.0f, 1.0f, 0.0f, 
+
+			-5.0f,  5.0f,  5.0f, 0.0f, 0.0f, 
+			-5.0f,  5.0f, -5.0f, 0.0f, 1.0f, 
+			 5.0f,  5.0f, -5.0f, 1.0f, 1.0f, 
+			 5.0f,  5.0f,  5.0f, 1.0f, 0.0f
+	};
+
+	glm::mat4 pv = glm::perspective(60.0f, 1.0f, 0.1f, 100.0f);*/
+
 	float vertices[] =
 	{
 		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -49,12 +86,36 @@ int main(int argc, char** argv)
 		 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
 		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f
 	};
+
+	//Ref<VertexBuffer> m_BoxVBO = VertexBuffer::Create(Boxvertices, sizeof(Boxvertices));
 	Ref<VertexBuffer> m_VBO = VertexBuffer::Create(vertices, sizeof(vertices));
+
+	/*unsigned int Boxindices[] = {
+			0, 1, 2,
+			2, 3, 0,
+
+			4, 5, 6,
+			6, 7, 4,
+
+			8, 9, 10,
+			10, 11, 8,
+
+			12, 13, 14,
+			14, 15, 12,
+
+			16, 17, 18,
+			18, 19, 16,
+
+			20, 21, 22,
+			22, 23, 20
+	};*/
 	unsigned int indices[] =
 	{
 		0, 1, 2, 
 		2, 3, 0
 	};
+
+	//Ref<IndexBuffer> m_BoxIBO = IndexBuffer::Create(Boxindices, sizeof(Boxindices));
 	Ref<IndexBuffer> m_IBO = IndexBuffer::Create(indices, sizeof(indices));
 
 	m_VBO->Bind();
@@ -107,10 +168,12 @@ int main(int argc, char** argv)
 		m_VBO->Bind();
 		m_Texture->Bind(2);
 		m_Shader->UploadUniform(2, "u_Texture");
+		//m_Shader->UploadUniform(pv, "u_PVmatrix");
 		Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		Renderer::DrawIndexed(m_IBO->GetCount());
+#if 1
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		m_ExShader->Bind();
 		m_IBO->Bind();
@@ -121,14 +184,16 @@ int main(int argc, char** argv)
 		Renderer::SetClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glDisable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, txbuffer);
-		m_ExShader->UploadUniform(0, "u_Texture");
+		m_ExShader->UploadUniform(3, "u_Texture");
 		Renderer::DrawIndexed(m_IBO->GetCount(), false);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+#endif
 	}
 
 	glfwTerminate();
 	return 0;
 }
+#endif

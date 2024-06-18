@@ -106,7 +106,7 @@ public:
 		m_Material.shininess = 128.0f;
 	}
 
-	virtual void OnUpdate(FireFly::Ref<FireFly::Input> input) override
+	virtual void OnUpdate() override
 	{
 		float time = FireFly::TimeStep::GetTime();
 		//m_Light.position = { sin(time / 2) * 5, 0.0f,cos(time / 2) * 5 - 20.0f };
@@ -120,7 +120,7 @@ public:
 			//glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), {1.0f, 1.0f, 1.0f}) *
 			glm::scale(glm::mat4(1.0f), {0.3f, 0.3f, 0.3f});
 		glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
-		m_Comtroller.OnUpdate(input);
+		m_Comtroller.OnUpdate();
 
 		m_Shader->UploadUniform(m_Light.position.x, m_Light.position.y, m_Light.position.z, "u_Light.position");
 		m_Shader->UploadUniform(m_Light.ambient.x, m_Light.ambient.y, m_Light.ambient.z, "u_Light.ambient");
@@ -156,14 +156,6 @@ private:
 	Light m_Light;
 };
 
-FireFly::Ref<FireFly::Application> FireFly::CreateApplication()
-{
-	FireFly::Ref<Application> app = std::make_shared<FireFly::Application>();
-	
-	app->PushLayer(std::make_shared<EditLayer>());
-
-	return app;
-}
 #endif
 
 
@@ -277,6 +269,7 @@ FireFly::Ref<FireFly::Application> FireFly::CreateApplication()
 	FireFly::Ref<Application> app = std::make_shared<FireFly::Application>();
 
 	app->PushLayer(std::make_shared<ModelLayer>());
+	//app->PushLayer(std::make_shared<EditLayer>());
 
 	return app;
 }
